@@ -1,0 +1,387 @@
+---
+title: '<font size = 6 color = "white">Flight Delay Prediction Based on Linear Regression</font>'
+author: '<font size = 5 color = "white"> Echefu Chinwendu </font>'
+institute: '<font size = 5 color = "white">West Chester University of Pennsylvania</font><br> '
+date: ' <font color = "white" size =4> February 6, 2024 <br> </font><br> <br> <font color = "white" size = 3> Slides available at: https://rpubs.com/Chinwex/1146187 </font>' 
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("pander")) {
+   install.packages("pander")
+   library(pander)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("ggplot2")) {
+   install.packages("ggplot2")
+   library(ggplot2)
+}
+knitr::opts_chunk$set(
+                  fig.width=3, 
+                  fig.height=3, 
+                  fig.retina=12,
+                  out.width = "100%",
+                  cache = FALSE,
+                  echo = TRUE,
+                  message = FALSE, 
+                  warning = FALSE,
+                  hiline = TRUE
+                  )
+```
+
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+  style_duo_accent(primary_color = "#380F2A",
+          secondary_color = "#1F4257",
+          # fonts
+          header_font_google = google_font("Martel"),
+          text_font_google = google_font("Lato"),
+          code_font_google = google_font("Fira Mono"))
+```
+
+class:inverse, top
+
+<h2 align="center"> Table of Contents</h2>
+<BR>
+
+.pull-left[
+- Introduction
+   - Objectives of the study
+- Data
+   - Response variable
+   - Model
+   - Description of the data
+- Exploratory Data Analysis
+   - Categorical Variables
+   - Numerical Variables
+- Linear Regression Model
+   - Description of the model
+   - Regression Plots
+]
+
+.pull-right[
+- Regression Coefficients of the model
+- Model Equation and Interpretation
+   - Model Equation
+   - Model Interpretation
+- Conclusion
+   - Discussion
+   - Limitations
+]
+
+
+---
+
+<h2 align="center"> Introduction</h2>
+<BR>
+
+```{r, echo=FALSE}
+dat <- read.csv("https://raw.githubusercontent.com/chinwex/datasets/main/Flight_delay-data.csv")
+```
+
+
+.pull-left[
+This data contains information on flight delay. Flight delay poses a big problem for the aviation industry.
+Customer satisfaction is affected by how much time flights are delayed. 
+In this study, the aim is to predict flight delay using factors such as 
+- weather condition 
+- distance between airports 
+- total number of flights in the airport 
+- total number of support crew available and others.
+]
+
+.pull-right[
+<h4 align="center"> Objectives of the Study </h4>
+<BR>
+- To predict flight delay in minutes
+- To obtain the average flight delay
+- To determine factors that influence delay of flights
+- To find any notable patterns between some of the factors and flight delay
+
+]
+
+---
+
+<h2 align="center"> Data </h2>
+<BR>
+
+.pull-left[
+**Response Variable** <br><br>
+The response variable is `Arrival Delay (Arr_delay)` which is a continuous variable ranging from 0 to 180 minutes. Increasing values mean a longer delay period.
+
+**Model** <br><br>
+A multiple linear regression model was used to predict the flight arrival delay. This is a tool that helps to analyze the relationship between two or more predictor variables and a response variable.
+In this model, the coefficient of each independent variable tells the estimated change in the response associated with a one-unit increase in the independent variable, given that the other independent variable is held constant.
+
+]
+
+.pull-right[
+**Description of the Data**<br><br>
+The total number of records in this data set was 3593. It consists of 11 variables with no missing values including the response variable with the name `arr_delay`. There are 10 numerical variables and 1 categorical variable. The predictor variables include 
+- Distance between airports
+- weather condition 
+- Time in minutes for loading the baggage 
+- total number of flights in the airport 
+- total number of support crew available
+- Time in minutes for late arriving aircraft
+- Time in minutes for aircraft cleaning
+- Time in minutes for aircraft fueling
+- Time in minutes for security checking
+
+]
+
+---
+<h2 align="center"> Exploratory Data Analysis </h2>
+<BR>
+
+
+.pull-left[
+```{r, echo=FALSE, out.width=400, out.height=300 }
+par(bg = 'white', col.axis="#380F2A")
+carr <- table(dat$Carrier)
+   barplot(carr, xlab="Carrier", ylab="counts", main="Distribution of Carriers", col="red",
+           cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+   
+```
+
+- There are 14 different types of carriers. 
+- UA has the most number of flights in this data (729)
+- Type of carrier was not included in the analysis
+
+]
+
+.pull-right[
+```{r, echo=FALSE, out.width=400, out.height=300 }
+par(bg = 'white', col.axis="#380F2A")
+wth <- table(dat$Weather)
+   barplot(wth, xlab="Weather condition", ylab="counts", main="Distribution of Weather", col=c("blue", "orange"),
+           cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+   
+```
+- The weather condition variable was ranked from 0 to 10, with 0 being
+mild and 10 being extreme.
+- Only 2 values were reported in the entire data - 5 and 6
+- This was recoded as a binary variable - 0 and 1
+
+]
+
+---
+
+<h2 align="center"> Exploratory Data Analysis </h2>
+<BR>
+
+.pull-left[
+
+```{r, echo=FALSE, out.width=400, out.height=230}
+par(bg = 'white', col.axis="#380F2A")
+hist(dat$Airport_Distance, xlab="Airport distance", ylab="counts", main="Distribution of Airport distance",
+     cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     col = 'white', 
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+     
+```
+
+```{r, echo=FALSE, out.width=400, out.height=230}
+par(bg = 'white', col.axis="#380F2A")
+hist(dat$Support_Crew_Available, xlab="Support Crew", ylab="counts", main="Available Support Crew",
+     cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     col = 'white', 
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+     
+```
+
+]
+
+.pull-right[
+
+```{r, echo=FALSE, out.width=400, out.height=230}
+den=density(dat$Number_of_flights)
+par(bg = 'white', col.axis="#380F2A")
+plot(den, xlab="Number of Flights", main="Density of Total flights",
+      cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     col = '#380F2A', 
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+```
+
+
+```{r, echo=FALSE, out.width=400, out.height=230}
+par(bg = 'white', col.axis="#380F2A")
+hist(dat$Late_Arrival_o, xlab="Late Aircraft", ylab="counts", main="Distribution of Late Aircraft Time",
+      cex.main=0.8, 
+     cex.lab=0.8,
+     col.axis = "#380F2A",
+     col.main = "#380F2A",
+     col.lab = "#380F2A",
+     col.sub="#380F2A",
+     col.tick="#380F2A",
+     col = 'white', 
+     border = "#380F2A")
+axis(2,col="#380F2A")
+axis(1,col="#380F2A")
+     
+```
+
+]
+
+---
+
+<h2 align="center"> Linear Regression Model </h2>
+<BR>
+
+```{r, echo=FALSE, include=FALSE}
+wth_cond<- ifelse(dat$Weather == 5, 0, 1)
+datx <- dat[,-c(1, 4)]
+newdat <- cbind(datx, wth_cond)
+                     
+```
+
+.pull-left[
+Linear regression was carried out with 9 predictor variables and they include:
+- Distance between airports
+- weather condition 
+- Time in minutes for loading the baggage 
+- total number of flights in the airport 
+- total number of support crew available
+- Time in minutes for late arriving aircraft
+- Time in minutes for aircraft cleaning
+- Time in minutes for aircraft fueling
+- Time in minutes for security checking
+
+The aim was to predict flight delay in minutes.
+From the plot, there are a few outliers.
+There is no obvious violation of the assumption of constant variance and normality of residuals.
+]
+
+.pull-right[
+```{r, echo=FALSE, out.width=500, out.height=300}
+model1 <- lm(Arr_Delay ~ ., data=newdat)
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+plot(model1,  cex.main=0.8, 
+     cex.lab=0.8)
+```
+
+]
+
+
+---
+
+
+<h2 align="center"> Regression Coefficients of the model </h2>
+<BR>
+
+```{r, echo=FALSE, out.width=200, out.height=500}
+DT::datatable(summary(model1)$coef, caption = "Summarized statistics of the regression 
+      coefficients of the model", fillContainer = FALSE, width="100%", options = list(pageLength = 5, scrollX=TRUE))
+```
+
+---
+
+<h2 align="center"> Model Equation and Interpretation </h2>
+<BR>
+
+
+.pull-left[
+#### Model Equation
+
+Y = -553.69 + 0.173X1 + 0.0044X2 - 0.0486X3 + 13.49X4 + 6.898X5 + 0.0526X6 - 0.0587X7 + 0.0085X8 + 4.466X9,
+Where 
+- Y = Flight delay time in minutes
+- X1 = Airport distance
+- X2 = Number of flights
+- X3 = Support Crew Available
+- X4 = Baggage loading time
+- X5 = Late arrival of flight time
+- X6 = Time for Cleaning of aircraft
+- X7 = Time for Fueling of aircraft
+- X8 = Time for Security checking
+- X9 = Weather condition
+
+
+]
+
+.pull-right[
+#### Model Interpretation
+For every 1-unit increase in the distance between airports, we expect the average flight delay time to increase by 0.173 minutes.
+Also, for every one-unit increase in the number of flights in the airport, we expect the average flight delay time to increase by 0.0044minutes
+For every one-unit increase in the number of support crew available, we expect the average flight delay time to decrease by 0.0486 minutes.
+
+We expect the average flight delay time to increase by 13.49 minutes with every one-unit increase in the baggage loading time. We also expect the average flight delay time to increase by 6.898minutes for every one-unit increase in the time for late arrival aircraft of same flight. For every 1-unit increase in the time for cleaning flights, we expect the average flight delay time to increase by 0.0526 minutes.
+
+
+]
+
+---
+
+<h2 align="center"> Conclusion </h2>
+<BR>
+
+#### Discussion
+Flight delay prediction is very essential and helps to provide necessary information to customers. Accurate predictions are very important because it has a significant influence on customer satisfaction . Using the linear regression model, we were able to use several predictor variables to estimate flight delay.
+
+#### Limitations
+Using a linear regression model to predict flight delay time has some limitations. One is that a linear model provides only information on the linear or straight-line relationship between the predictors and the response. Another limitation is that it is very sensitive to extreme values which may affect the overall estimates.
+
+#### Dataset
+A copy of this publicly available data is stored at: https://raw.githubusercontent.com/chinwex/datasets/main/Flight_delay-data.csv
+
+

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Flight Delay Prediction Based on Linear Regression</title>
+    <meta charset="utf-8" />
+    <meta name="author" content=" Echefu Chinwendu " />
+    <script src="flight_delay_files/header-attrs/header-attrs.js"></script>
+    <script src="flight_delay_files/htmlwidgets/htmlwidgets.js"></script>
+    <link href="flight_delay_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="flight_delay_files/datatables-binding/datatables.js"></script>
+    <script src="flight_delay_files/jquery/jquery-3.6.0.min.js"></script>
+    <link href="flight_delay_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="flight_delay_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="flight_delay_files/dt-core/js/jquery.dataTables.min.js"></script>
+    <link href="flight_delay_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="flight_delay_files/crosstalk/js/crosstalk.min.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# <font size = 6 color = "white">Flight Delay Prediction Based on Linear Regression</font>
+]
+.author[
+### <font size = 5 color = "white"> Echefu Chinwendu </font>
+]
+.institute[
+### <font size = 5 color = "white">West Chester University of Pennsylvania</font><br>
+]
+.date[
+### <font color = "white" size =4> February 6, 2024 <br> </font><br> <br> <font color = "white" size = 3> Slides available at: <a href="https://rpubs.com/Chinwex/1146187" class="uri">https://rpubs.com/Chinwex/1146187</a> </font>
+]
+
+---
+
+
+
+
+
+
+
+
+class:inverse, top
+
+&lt;h2 align="center"&gt; Table of Contents&lt;/h2&gt;
+&lt;BR&gt;
+
+.pull-left[
+- Introduction
+   - Objectives of the study
+- Data
+   - Response variable
+   - Model
+   - Description of the data
+- Exploratory Data Analysis
+   - Categorical Variables
+   - Numerical Variables
+- Linear Regression Model
+   - Description of the model
+   - Regression Plots
+]
+
+.pull-right[
+- Regression Coefficients of the model
+- Model Equation and Interpretation
+   - Model Equation
+   - Model Interpretation
+- Conclusion
+   - Discussion
+   - Limitations
+]
+
+
+---
+
+&lt;h2 align="center"&gt; Introduction&lt;/h2&gt;
+&lt;BR&gt;
+
+
+
+
+.pull-left[
+This data contains information on flight delay. Flight delay poses a big problem for the aviation industry.
+Customer satisfaction is affected by how much time flights are delayed. 
+In this study, the aim is to predict flight delay using factors such as 
+- weather condition 
+- distance between airports 
+- total number of flights in the airport 
+- total number of support crew available and others.
+]
+
+.pull-right[
+&lt;h4 align="center"&gt; Objectives of the Study &lt;/h4&gt;
+&lt;BR&gt;
+- To predict flight delay in minutes
+- To obtain the average flight delay
+- To determine factors that influence delay of flights
+- To find any notable patterns between some of the factors and flight delay
+
+]
+
+---
+
+&lt;h2 align="center"&gt; Data &lt;/h2&gt;
+&lt;BR&gt;
+
+.pull-left[
+**Response Variable** &lt;br&gt;&lt;br&gt;
+The response variable is `Arrival Delay (Arr_delay)` which is a continuous variable ranging from 0 to 180 minutes. Increasing values mean a longer delay period.
+
+**Model** &lt;br&gt;&lt;br&gt;
+A multiple linear regression model was used to predict the flight arrival delay. This is a tool that helps to analyze the relationship between two or more predictor variables and a response variable.
+In this model, the coefficient of each independent variable tells the estimated change in the response associated with a one-unit increase in the independent variable, given that the other independent variable is held constant.
+
+]
+
+.pull-right[
+**Description of the Data**&lt;br&gt;&lt;br&gt;
+The total number of records in this data set was 3593. It consists of 11 variables with no missing values including the response variable with the name `arr_delay`. There are 10 numerical variables and 1 categorical variable. The predictor variables include 
+- Distance between airports
+- weather condition 
+- Time in minutes for loading the baggage 
+- total number of flights in the airport 
+- total number of support crew available
+- Time in minutes for late arriving aircraft
+- Time in minutes for aircraft cleaning
+- Time in minutes for aircraft fueling
+- Time in minutes for security checking
+
+]
+
+---
+&lt;h2 align="center"&gt; Exploratory Data Analysis &lt;/h2&gt;
+&lt;BR&gt;
+
+
+.pull-left[
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-2-1.png" width="400" height="300" /&gt;
+
+- There are 14 different types of carriers. 
+- UA has the most number of flights in this data (729)
+- Type of carrier was not included in the analysis
+
+]
+
+.pull-right[
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-3-1.png" width="400" height="300" /&gt;
+- The weather condition variable was ranked from 0 to 10, with 0 being
+mild and 10 being extreme.
+- Only 2 values were reported in the entire data - 5 and 6
+- This was recoded as a binary variable - 0 and 1
+
+]
+
+---
+
+&lt;h2 align="center"&gt; Exploratory Data Analysis &lt;/h2&gt;
+&lt;BR&gt;
+
+.pull-left[
+
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-4-1.png" width="400" height="230" /&gt;
+
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-5-1.png" width="400" height="230" /&gt;
+
+]
+
+.pull-right[
+
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-6-1.png" width="400" height="230" /&gt;
+
+
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-7-1.png" width="400" height="230" /&gt;
+
+]
+
+---
+
+&lt;h2 align="center"&gt; Linear Regression Model &lt;/h2&gt;
+&lt;BR&gt;
+
+
+
+.pull-left[
+Linear regression was carried out with 9 predictor variables and they include:
+- Distance between airports
+- weather condition 
+- Time in minutes for loading the baggage 
+- total number of flights in the airport 
+- total number of support crew available
+- Time in minutes for late arriving aircraft
+- Time in minutes for aircraft cleaning
+- Time in minutes for aircraft fueling
+- Time in minutes for security checking
+
+The aim was to predict flight delay in minutes.
+From the plot, there are a few outliers.
+There is no obvious violation of the assumption of constant variance and normality of residuals.
+]
+
+.pull-right[
+&lt;img src="flight_delay_files/figure-html/unnamed-chunk-9-1.png" width="500" height="300" /&gt;
+
+]
+
+
+---
+
+
+&lt;h2 align="center"&gt; Regression Coefficients of the model &lt;/h2&gt;
+&lt;BR&gt;
+
+<div id="htmlwidget-80c576b2400035d69380" style="width:100%;height:auto;" class="datatables html-widget "></div>
+<script type="application/json" data-for="htmlwidget-80c576b2400035d69380">{"x":{"filter":"none","vertical":false,"caption":"<caption>Summarized statistics of the regression \n      coefficients of the model<\/caption>","fillContainer":false,"data":[["(Intercept)","Airport_Distance","Number_of_flights","Support_Crew_Available","Baggage_loading_time","Late_Arrival_o","Cleaning_o","Fueling_o","Security_o","wth_cond"],[-553.6873102987798,0.1730925065197919,0.004429571059127933,-0.04862690075089556,13.486229128944,6.897773336567898,0.05263024368735553,-0.05874119274124994,0.008525613381121939,4.465993136910068],[7.605169878161533,0.01352350939515398,0.0001086254851533695,0.005319699627928694,0.4384808386754894,0.3330868263659922,0.05991139682420119,0.05942371394326491,0.02952343573646179,0.4543877509473844],[-72.80406870183256,12.7993778435809,40.77837767880875,-9.140910982191899,30.75671258448053,20.70863447775235,0.8784679790022115,-0.9885143294364501,0.2887744318522084,9.828594911721565],[0,1.040328164276137e-36,5.664541757957957e-299,1.012037196056393e-19,1.491487058432104e-184,4.476391685000709e-90,0.3797487121588435,0.3229675684716314,0.7727707045989365,1.628943987153458e-22]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Estimate<\/th>\n      <th>Std. Error<\/th>\n      <th>t value<\/th>\n      <th>Pr(&gt;|t|)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+&lt;h2 align="center"&gt; Model Equation and Interpretation &lt;/h2&gt;
+&lt;BR&gt;
+
+
+.pull-left[
+#### Model Equation
+
+Y = -553.69 + 0.173X1 + 0.0044X2 - 0.0486X3 + 13.49X4 + 6.898X5 + 0.0526X6 - 0.0587X7 + 0.0085X8 + 4.466X9,
+Where 
+- Y = Flight delay time in minutes
+- X1 = Airport distance
+- X2 = Number of flights
+- X3 = Support Crew Available
+- X4 = Baggage loading time
+- X5 = Late arrival of flight time
+- X6 = Time for Cleaning of aircraft
+- X7 = Time for Fueling of aircraft
+- X8 = Time for Security checking
+- X9 = Weather condition
+
+
+]
+
+.pull-right[
+#### Model Interpretation
+For every 1-unit increase in the distance between airports, we expect the average flight delay time to increase by 0.173 minutes.
+Also, for every one-unit increase in the number of flights in the airport, we expect the average flight delay time to increase by 0.0044minutes
+For every one-unit increase in the number of support crew available, we expect the average flight delay time to decrease by 0.0486 minutes.
+
+We expect the average flight delay time to increase by 13.49 minutes with every one-unit increase in the baggage loading time. We also expect the average flight delay time to increase by 6.898minutes for every one-unit increase in the time for late arrival aircraft of same flight. For every 1-unit increase in the time for cleaning flights, we expect the average flight delay time to increase by 0.0526 minutes.
+
+
+]
+
+---
+
+&lt;h2 align="center"&gt; Conclusion &lt;/h2&gt;
+&lt;BR&gt;
+
+#### Discussion
+Flight delay prediction is very essential and helps to provide necessary information to customers. Accurate predictions are very important because it has a significant influence on customer satisfaction . Using the linear regression model, we were able to use several predictor variables to estimate flight delay.
+
+#### Limitations
+Using a linear regression model to predict flight delay time has some limitations. One is that a linear model provides only information on the linear or straight-line relationship between the predictors and the response. Another limitation is that it is very sensitive to extreme values which may affect the overall estimates.
+
+#### Dataset
+A copy of this publicly available data is stored at: https://raw.githubusercontent.com/chinwex/datasets/main/Flight_delay-data.csv
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
