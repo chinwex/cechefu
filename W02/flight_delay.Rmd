@@ -2,7 +2,7 @@
 title: '<font size = 6 color = "white">Flight Delay Prediction Based on Linear Regression</font>'
 author: '<font size = 5 color = "white"> Echefu Chinwendu </font>'
 institute: '<font size = 5 color = "white">West Chester University of Pennsylvania</font><br> '
-date: ' <font color = "white" size =4> February 6, 2024 <br> </font><br> <br> <font color = "white" size = 3> Slides available at: https://rpubs.com/Chinwex/1146187 </font>' 
+date: ' <font color = "white" size =4> February 6, 2024 <br> </font><br> <br> <font color = "white" size = 3> Slides available at: https://rpubs.com/Chinwex/1146187 AND https://chinwex.github.io/cechefu/W02/flight_delay.html </font>'
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
