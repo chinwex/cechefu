@@ -1,0 +1,401 @@
+---
+title: "Analysis of a Subset of Foraging Penguin Size Data"
+author: "Echefu Chinwendu"
+date: "2024-02-20"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    fig_width: 4
+    fig_caption: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+    fig_height: 4
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+    fig_width: 3
+    fig_height: 3
+  word_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    keep_md: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{=html}
+<style type="text/css">
+
+/* Table of content - navigation */
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+
+/* Title fonts */
+h1.title {
+  font-size: 24px;
+  color: darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.author { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: navy;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkblue;
+  text-align: center;
+}
+
+/* Section headers */
+h1 {
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h4 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Decoration of hyperlinks  */
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: purple;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+</style>
+```
+
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")             # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("jpeg")) {
+    install.packages("jpeg")              
+    library("jpeg")
+}
+if (!require("VGAM")) {
+    install.packages("VGAM")              
+    library("VGAM")
+}
+if (!require("MASS")) {
+    install.packages("MASS")              
+    library("MASS")
+}
+if (!require("nnet")) {
+    install.packages("nnet")              
+    library("nnet")
+}
+if (!require("cluster")) {
+    install.packages("cluster")              
+    library("cluster")
+}
+if (!require("stringr")) {
+   install.packages("stringr", dependencies = TRUE)
+   library(stringr)
+}
+
+if (!require("tm")) {
+   install.packages("tm", dependencies = TRUE)
+   library(tm)
+}
+
+if (!require("wordcloud")) {
+   install.packages("wordcloud", dependencies = TRUE)
+   library(wordcloud)
+}
+
+if (!require("RCurl")) {
+   install.packages("RCurl", dependencies = TRUE)
+   library(RCurl)
+}
+
+if (!require("XML")) {
+   install.packages("XML", dependencies = TRUE)
+   library(XML)
+}
+
+
+if (!require("SnowballC")) {
+   install.packages("SnowballC", dependencies = TRUE)
+   library(SnowballC)
+}
+
+if (!require("RColorBrewer")) {
+   install.packages("RColorBrewer", dependencies = TRUE)
+   library(RColorBrewer)
+}
+
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+
+
+# Introduction
+
+This data set contains size measurements for adult foraging penguins near Palmer Station, Antarctica. It includes measurements for penguin species, an island in Palmer Archipelago, size (flipper length, body mass, bill dimensions), and sex.
+
+## Objectives of this study
+
+The following are the objectives that describe and explain the main purpose of this project.
+
+1. To explore linear relationships within and across the species
+2. For data visualization
+
+## Description of the Data
+
+The dataset contains data for 344 penguins (rows) and 8 variables. There are 3 different species of penguins in this dataset, collected from 3 islands in the Palmer Archipelago, Antarctica.
+Variables in the data set include:
+
+1. species - a factor denoting penguin species (Adélie, Chinstrap and Gentoo)
+2. island - a factor denoting island in Palmer Archipelago, Antarctica (Biscoe, Dream or Torgersen)
+3. bill_length_mm - a number denoting bill length (millimeters)
+4. bill_depth_mm - a number denoting bill depth (millimeters)
+5. flipper_length_mm - an integer denoting flipper length (millimeters)
+6. body_mass_g - an integer denoting body mass (grams)
+7. sex - a factor denoting penguin sex (female, male)
+8. year - an integer denoting the study year (2007, 2008, or 2009)
+
+A copy of this publicly available data is stored at https://github.com/chinwex/STA553/raw/main/w03-penguins.csv
+
+
+```{r}
+dat <- read.csv(file = "https://github.com/chinwex/STA553/raw/main/w03-penguins.csv")[,-1]
+```
+
+# Penguin data
+The data contains 8 variables. 3 categorical variables and 5 numerical variables.The three categorical variables include Species, Island and Sex. The five numerical variables are: bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g and year.
+
+```{r, results='hide'}
+summary(dat)
+```
+
+
+## Data
+```{r}
+DT::datatable(dat, fillContainer = FALSE, options = list(pageLength = 6))
+```
+
+
+## Missing Data
+```{r, results='hide'}
+sum(is.na(dat))
+```
+
+This dataset has 19 missing values.
+All records with at least one missing component was deleted.
+
+```{r, results='hide'}
+newdat <- na.omit(dat)
+table(newdat$species)
+table(newdat$island)
+```
+
+
+
+## Subsetting the Data
+A subset of the data was created to include only two of the species - Adelie and Gentoo species - from the Biscoe and Torgersen islands. Only penguins with body mass less than 5000g but more than 3500g were included. Then body mass was rescaled by dividing by 4000 and renamed as body mass index.
+Variables - Sex, Year and Body mass were removed from the data set.
+
+```{r}
+not.chin <- which(newdat$species == "Adelie" | newdat$species == "Gentoo")
+not.chin.dat <- newdat[not.chin,]
+not.dreamchin <- which(not.chin.dat$island == "Biscoe" | not.chin.dat$island == "Torgersen")
+not.dreamchin.dat <- not.chin.dat[not.dreamchin,]
+
+dat.1.id <- which(not.dreamchin.dat$body_mass_g < 5000 & not.dreamchin.dat$body_mass_g > 3500) 
+dat.1 <- not.dreamchin.dat[dat.1.id,]
+
+# Rescale body mass
+dat.1$BMI <- dat.1$body_mass_g / 4000 
+
+# Variable X(observation ID) was first excluded at the beginning of the analysis.
+# Exclude variables sex, year, and body_mass_g from the above subset.
+final.dat <- dat.1[, -c(6, 7, 8)]
+
+
+```
+
+
+
+# Plot
+
+## Plot of Bill Length vs Flipper Length
+This is a scatterplot of bill length and flipper length of 2 species of palmer penguins from Biscoe and Torgersen islands.
+
+```{r fig.align='center', fig.width=7, fig.height=7, fig.cap = "Scatter Plot Showing Bill Length and Flipper Length"}
+
+bill.length <- final.dat$bill_length_mm
+flipper.length <- final.dat$flipper_length_mm
+species <- final.dat$species
+
+sizes <- final.dat$BMI
+
+Adelie.id <- which(species=="Adelie")
+Gentoo.id <- which(species=="Gentoo")
+
+plot(bill.length, flipper.length, 
+     main = "Bill Length vs Flipper Length", 
+     col.main = "green",
+     type = "n",
+     xlab = "Bill Length",
+     ylab = "Flipper Length",
+     xaxt ='n', 
+     yaxt ='n',
+     fg = "#6d7f49",
+     col.lab = "#c3552b")
+
+bg.img <- "https://raw.githubusercontent.com/chinwex/STA553/main/w04/pengiun_female_01.jpg"
+bgimage <- readJPEG(getURLContent(bg.img))
+raster.bg <- as.raster(bgimage)
+
+#Change the background of the plot
+rasterImage(raster.bg, xleft = 30, xright = 60, ybottom = 170, ytop = 235)
+
+#specify x-axis interval
+axis(side=1, at=seq(30, 60, by=5))
+
+#specify y-axis interval
+axis(side=2, at=seq(170, 235, by=5))
+
+## change the point size based on their body mass
+
+points(bill.length[Adelie.id], flipper.length[Adelie.id], 
+       pch = 19, cex = (sizes[Adelie.id]), alpha = 0.6, col = "#ce4a5c")
+points(bill.length[Gentoo.id], flipper.length[Gentoo.id], 
+       pch = 19, cex = (sizes[Gentoo.id]), alpha = 0.6, col="gold")
+
+abline(lm(flipper.length[Adelie.id] ~ bill.length[Adelie.id], data=final.dat), col="#ce4a5c")
+abline(lm(flipper.length[Gentoo.id] ~ bill.length[Gentoo.id], data=final.dat), col="gold")
+
+legend("topleft", c("Adelie", "Gentoo"), 
+                  col=c("#ce4a5c", "gold"),
+                  pch=c(19, 19))
+
+
+#specify the position of the text 
+text(46, 185, "The point size is proportional to body mass", col = "black", cex = 0.5)
+
+```
+
+## Plot Interpretation
+This is a scatterplot of bill length and flipper length of two Palmer penguins (Adelie and Gentoo). From the plot above, there are 2 species of Palmer penguins - Adelie (red dots) and Gentoo species(golden dots). The point sizes are proportional to the body mass index of the corresponding penguin. There appears to be a positive correlation between the bill length of the 2 species of penguins and their flipper length. As the bill length increases, the flipper length also increases. The Gentoo species have higher flipper length and bill length, and larger body mass when compared to the Adelie species.
+
+
+# Conclusion
+A scatterplot was used to show the relationship between the two continuous variables - bill length and flipper length. From the above plot, it can be concluded that there is a positive linear relationship between bill length and flipper length.
+
+
+
