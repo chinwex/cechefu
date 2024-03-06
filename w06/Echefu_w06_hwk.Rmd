@@ -1,0 +1,442 @@
+---
+title: "Data Analysis Using Interactive Plots in R"
+author: "Echefu Chinwendu"
+date: "2024-03-06"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    fig_width: 4
+    fig_caption: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+    fig_height: 4
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+    fig_width: 3
+    fig_height: 3
+  word_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    keep_md: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{=html}
+<style type="text/css">
+
+/* Table of content - navigation */
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+
+/* Title fonts */
+h1.title {
+  font-size: 24px;
+  color: darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.author { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: navy;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkblue;
+  text-align: center;
+}
+
+/* Section headers */
+h1 {
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h4 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Decoration of hyperlinks  */
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: purple;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+</style>
+```
+
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")             # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("jpeg")) {
+    install.packages("jpeg")              
+    library("jpeg")
+}
+if (!require("VGAM")) {
+    install.packages("VGAM")              
+    library("VGAM")
+}
+if (!require("MASS")) {
+    install.packages("MASS")              
+    library("MASS")
+}
+if (!require("nnet")) {
+    install.packages("nnet")              
+    library("nnet")
+}
+if (!require("cluster")) {
+    install.packages("cluster")              
+    library("cluster")
+}
+if (!require("stringr")) {
+   install.packages("stringr", dependencies = TRUE)
+   library(stringr)
+}
+
+if (!require("tm")) {
+   install.packages("tm", dependencies = TRUE)
+   library(tm)
+}
+
+if (!require("wordcloud")) {
+   install.packages("wordcloud", dependencies = TRUE)
+   library(wordcloud)
+}
+
+if (!require("RCurl")) {
+   install.packages("RCurl", dependencies = TRUE)
+   library(RCurl)
+}
+
+if (!require("XML")) {
+   install.packages("XML", dependencies = TRUE)
+   library(XML)
+}
+if (!require("SnowballC")) {
+   install.packages("SnowballC", dependencies = TRUE)
+   library(SnowballC)
+}
+if (!require("RColorBrewer")) {
+   install.packages("RColorBrewer", dependencies = TRUE)
+   library(RColorBrewer)
+}
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("plyr")) {
+    install.packages("plyr")              
+    library("plyr")
+}
+if (!require("ggiraph")) {
+    install.packages("ggiraph")              
+    library("ggiraph")
+}
+if (!require("highcharter")) {
+    install.packages("highcharter")              
+    library("highcharter")
+}
+if (!require("forecast")) {
+    install.packages("forecast")              
+    library("forecast")
+}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+# Introduction
+Four datasets from the World Life Expectancy data - Income per Person, Life Expectancy, Population Size and Country Regions, contain information that potentially impacts the life expectancy of the world. The data covers relative information between 1800 and 2018. All four datasets were combined together into one dataset for this analysis.
+
+The combined dataset contains 40437 observations and 6 variables. The variables are:
+
+1. `country` - Name of the country (categorical)
+2. `Region`  - The region the country belongs to (categorical)
+3. `Year`    - Year (categorical)
+4. `Income`  - Income (Numerical) - in constant international dollars.
+5. `life expectancy` - Number of years (Numerical)
+6. `Population Size` - Total Population count of a country (Numerical)
+
+A copy of the combined dataset can be found here: https://github.com/chinwex/STA553/raw/main/w05/merged_data.csv
+
+```{r}
+dt <- read.csv(file="https://github.com/chinwex/STA553/raw/main/w05/merged_data.csv")[,-1]
+kable(head(dt))
+```
+
+
+# Plot of Life Expectancy and Income for 2015
+A subset of the data containing only data for the year 2015 was created and called `dt2015`.
+The data contains 6 variables (country, region, year, income, life expectancy and population size) and 187 observations.
+
+```{r}
+dt2015 <- filter(dt, year == 2015)
+kable(head(dt2015))
+```
+
+## Scatter Plot Showing Income and Life Expectancy
+```{r fig.align='center', fig.width=7, fig.height=5, fig.cap = "Scatter Plot Showing Income and Life Expectancy"}
+myPlotlyLayout <- function(n){  
+                              
+  layout(n,  
+      ### Title 
+      title =list(text = "Association Between Income and Life Expectancy", 
+                          font = list(family = "Times New Roman",  # HTML font family  
+                                        size = 18,
+                                       color = "#009E73")), 
+      ### legend
+      legend = list(title = list(text = 'Region',
+                                 font = list(family = "Times New Roman",
+                                               size = 18,
+                                              color = "#009E73")),
+                    bgcolor = "#e6ffff",
+                    bordercolor = "navy",
+                    groupclick = "togglegroup",  # one of  "toggleitem" AND "togglegroup".
+                    orientation = "v"  # Sets the orientation of the legend.
+                    
+                    ),
+    
+      ## Background
+      plot_bgcolor ='#e6ffff', 
+      ## Axes labels
+             xaxis = list(color = "#0072B2", 
+                    title=list(text = 'Income',
+                               font = list(family = 'Times New Roman', size=18)),
+                    zeroline = TRUE,
+                    zerolinecolor = '#ccffff', 
+                    zerolinewidth = 0.5,
+                    showgrid = TRUE,
+                    gridcolor = '#e6f2ff'), 
+            yaxis = list(color = "#0072B2", 
+                    title=list(text = 'Life Expectancy',
+                               font = list(family = 'Times New Roman', size=18)),
+                    zeroline = TRUE,
+                    zerolinecolor = '#ccffff', 
+                    zerolinewidth = 0.5, 
+                    showgrid = TRUE,
+                    gridcolor = '#ccffff'),
+       ## annotations
+       annotations = list(  
+                     x = 0.7,   # between 0 and 1. 0 = left, 1 = right
+                     y = 0.3,   # between 0 and 1, 0 = bottom, 1 = top
+                  font = list(size = 12,
+                    color = "#D55E00"),   
+                  text = "The point size is proportional to the Population Size",   
+                  xref = "paper",  # "container" spans the entire `width` of the plot. 
+                                   # "paper" refers to the width of the plotting area only.  
+                  yref = "paper",  #  same as xref
+               xanchor = "center", #  horizontal alignment with respect to its x position
+               yanchor = "bottom", #  similar to xanchor  
+             showarrow = FALSE  
+           )
+  )
+       }
+```
+
+
+
+
+
+```{r}
+# standardize population size between 0 and 1
+pop.size <- dt2015$Population_size
+# sizes <- (pop.size - min(pop.size))/(max(pop.size) - min(pop.size))
+# rel.pop = pop.size/1000000
+
+plot_ly(
+    data = dt2015,
+    x = ~income,         # Horizontal axis 
+    y = ~Life_Expectancy,
+    color = ~factor(region), # must be a numeric factor
+    colors=c("#D55E00", "#CC79A7", "#F0E442", "#0072B2", "#009E73"),
+     text = ~paste("Country: ", country,
+                   "<br>Population Size: ", Population_size),
+   
+     hovertemplate = paste('<i><b>Life Expectancy<b></i>: %{y}',
+                           '<br><b>Income</b>:  %{x}',
+                           '<br><b>%{text}</b>'),
+    alpha  = 0.5,
+   size = ~(3*log(pop.size)-11)^3,
+   type = 'scatter',
+    mode = 'markers',
+   marker = list(opacity = 0.7, sizemode = "area", sizeref = 0.3),
+ #  width = 700,
+ #    height = 500
+ width = 800,
+    height = 500
+     )  %>% myPlotlyLayout()
+```
+
+## Plot Interpretation
+This is a scatterplot of income and life expectancy for 187 countries in the world for the year 2015. The points on the plot are colored based on their regions (Africa, Americas, Asia, Europe and Oceania). The point sizes are proportional to the population size of each country. There appears to be a curvilinear relationship between income and life expectancy. The first part is linear and then gradually it becomes curved.
+
+Countries in Africa and few in Asia have the lowest income and the shortest life expectancy while European and American countries have the highest income and longest life expectancy. Also, Asian countries with the largest population have their life expectancy between 60 and 70 years. The plot also shows differences in the life expectancy of many countries that have the same income such as countries in Africa, and parts of Asia and Oceania. Overall, the plot shows that life expectancy increases with higher income and decreases with lower income.
+
+This plot shows the huge gap in life expectancy between countries with low income and countries with high income. This difference may be due to increased access to healthcare, education, good food and water for people living in countries with high income than people living in low income areas. From the plot, Japan had the highest life expectancy 83.8years with an average income of 37,800 and a population of 128,000,000. This was followed closely by Singapore with life expectancy of 83.6years, an average income of 80,900 and a population of 5,540,000.
+
+Central African Republic and Lesotho had the lowest life expectancy of 49.7years and 49.6 years respectively, and both are countries in the African region.
+
+# Plot of Life Expectancy and Income Over Years
+This is a plot showing changes in life expectancy and income from 1800 to 2018 for countries in Africa, America, Asia, Europe and Oceania.
+
+```{r}
+# standardize population size between 0 and 1
+pop.size <- dt$Population_size
+# sizes <- (pop.size - min(pop.size))/(max(pop.size) - min(pop.size))
+# rel.pop = pop.size/1000000
+
+plot_ly(
+    data = dt,
+    x = ~income,         # Horizontal axis 
+    y = ~Life_Expectancy,
+    color = ~factor(region), # must be a numeric factor
+    colors=c("#D55E00", "#CC79A7", "#F0E442", "#0072B2", "#009E73"),
+    
+    frame = ~year,
+     text = ~paste("Country: ", country,
+                   "<br>Population Size: ", Population_size),
+   
+     hovertemplate = paste('<i><b>Life Expectancy<b></i>: %{y}',
+                           '<br><b>Income</b>:  %{x}',
+                           '<br><b>%{text}</b>'),
+    alpha  = 0.5,
+   size = ~(3*log(pop.size)-11)^3,
+   type = 'scatter',
+    mode = 'markers',
+    marker = list(opacity = 0.7, sizemode = "area", sizeref = 0.3),
+ #  width = 700,
+ #    height = 500
+ width = 800,
+    height = 500
+     )  %>% myPlotlyLayout()
+```
+
+## Plot Interpretation
+
+From the plot, the average life expectancy globally was low in the early years and has since increased over time. In 1800, the average life expectancy for most of the countries lay between 20 and 40 years with an average annual income between 300 and 5000. Over the years, there has been a gradual increase in both income and life expectancy with the highest average life expectancy seen in Japan at 84.2years in 2018 with an income of about 39,100.
+
