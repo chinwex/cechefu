@@ -1,0 +1,463 @@
+---
+title: "R Maps for Visualizing Spatial Information"
+author: "Echefu Chinwendu"
+date: "2024-03-19"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    fig_width: 4
+    fig_caption: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+    fig_height: 4
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+    fig_width: 3
+    fig_height: 3
+  word_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    keep_md: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{=html}
+<style type="text/css">
+
+/* Table of content - navigation */
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+
+/* Title fonts */
+h1.title {
+  font-size: 24px;
+  color: darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.author { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: navy;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkblue;
+  text-align: center;
+}
+
+/* Section headers */
+h1 {
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h4 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Decoration of hyperlinks  */
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: purple;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+</style>
+```
+
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")             # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("jpeg")) {
+    install.packages("jpeg")              
+    library("jpeg")
+}
+if (!require("VGAM")) {
+    install.packages("VGAM")              
+    library("VGAM")
+}
+if (!require("MASS")) {
+    install.packages("MASS")              
+    library("MASS")
+}
+if (!require("nnet")) {
+    install.packages("nnet")              
+    library("nnet")
+}
+if (!require("cluster")) {
+    install.packages("cluster")              
+    library("cluster")
+}
+if (!require("stringr")) {
+   install.packages("stringr", dependencies = TRUE)
+   library(stringr)
+}
+
+if (!require("tm")) {
+   install.packages("tm", dependencies = TRUE)
+   library(tm)
+}
+
+if (!require("wordcloud")) {
+   install.packages("wordcloud", dependencies = TRUE)
+   library(wordcloud)
+}
+
+if (!require("RCurl")) {
+   install.packages("RCurl", dependencies = TRUE)
+   library(RCurl)
+}
+
+if (!require("XML")) {
+   install.packages("XML", dependencies = TRUE)
+   library(XML)
+}
+if (!require("SnowballC")) {
+   install.packages("SnowballC", dependencies = TRUE)
+   library(SnowballC)
+}
+if (!require("RColorBrewer")) {
+   install.packages("RColorBrewer", dependencies = TRUE)
+   library(RColorBrewer)
+}
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("plyr")) {
+    install.packages("plyr")              
+    library("plyr")
+}
+if (!require("ggiraph")) {
+    install.packages("ggiraph")              
+    library("ggiraph")
+}
+if (!require("highcharter")) {
+    install.packages("highcharter")              
+    library("highcharter")
+}
+if (!require("forecast")) {
+    install.packages("forecast")              
+    library("forecast")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+if (!require("maps")) {
+    install.packages("maps")              
+    library("maps")
+}
+if (!require("htmltools")) {
+    install.packages("htmltools")              
+    library("htmltools")
+}
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")              
+    library("htmlwidgets")
+}
+if (!require("leaflegend")) {
+    install.packages("leaflegend")              
+    library("leaflegend")
+}
+if (!require("geojsonio")) {
+    install.packages("geojsonio")              
+    library("geojsonio")
+}
+if (!require("stringi")) {
+    install.packages("stringi")              
+    library("stringi")
+}
+if (!require("RColorBrewer")) {
+    install.packages("RColorBrewer")              
+    library("RColorBrewer")
+}
+if (!require("tigris")) {
+    install.packages("tigris")              
+    library("tigris")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("leafem")) {
+    install.packages("leafem")              
+    library("leafem")
+}
+if (!require("tmap")) {
+    install.packages("tmap")              
+    library("tmap")
+}
+if (!require("tmaptools")) {
+    install.packages("tmaptools")              
+    library("tmaptools")
+}
+if (!require("webshot2")) {
+    install.packages("webshot2")              
+    library("webshot2")
+}
+if (!require("sf")) {
+    install.packages("sf")              
+    library("sf")
+}
+if (!require("terra")) {
+    install.packages("terra")              
+    library("terra")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("mapview")) {
+    install.packages("mapview")              
+    library("mapview")
+}
+if (!require("spData")) {
+    install.packages("spData")              
+    library("spData")
+}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+# Introduction
+Two datasets were used for this project. The first is the gas station dataset. This dataset contains 72798 observations and 31 variables. It gives information about the various locations of gas stations in the US. Some of the variables include state, county, city, longitude, latitude, availability of diesel and so on. 
+
+The second dataset is the Philly Crime Data (2015 - 2024). It is a longitudinal data that contains crime cases in the Philadelphia area since 2015. It has 15243 observations and 19 variables. Some of the variables include: race, sex, date of crime, fatal crimes, street name, block number, zip code and so on.
+
+The datasets can be found here:
+
+Gas Station Dataset: https://github.com/chinwex/STA553/raw/main/w07/POC.csv
+
+Philly Crime Dataset:https://github.com/chinwex/STA553/raw/main/w07/PhillyCrimeSince2015.csv
+
+# Gas Station Data
+The table below gives information about the first six gas stations in the dataset.
+```{r}
+dt <- read.csv(file="https://github.com/chinwex/STA553/raw/main/w07/POC.csv")[,-1]
+kable(head(dt))
+```
+
+## Map Showing Different Gas Station Locations
+A random sample of 500 gas stations were taken from the dataset to plot on the map.
+```{r}
+set.seed(100)  
+dt500 <- dt[sample(nrow(dt), size = 500), ]
+```
+
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Map of 500 Gas Stations in the US"}
+title1 <- tags$div( HTML('<font color = "darkred" size =5><b>A Map of 500 Gas Stations in the US</b></font>'))
+
+leaflet(dt500) %>% 
+  addTiles() %>%
+  setView(lng = -75.5978, lat=39.9522, zoom = 9) %>%
+  addMarkers(~xcoord, ~ycoord, popup = ~paste("State: ",STATE, 
+                                         "<br>County: ", county,
+                                         "<br>Address: ", ADDRESS,
+                                         "<br>Zipcode: ", ZIPnew))%>%
+ addControl(title1, position = "topright", className = "map-title")
+```
+
+# Philly Crime Data
+The table below shows the first 6 crime cases in the dataset.
+```{r}
+phily <- na.omit(read.csv(file = "https://github.com/chinwex/STA553/raw/main/w07/PhillyCrimeSince2015.csv"))
+kable(head(phily))
+```
+
+## Map Showing the 2023 Philly Crime Data 
+All 2023 crime cases where filtered from the dataset and shown in the map below.
+```{r}
+phily$year <- format(as.Date(phily$date, format = "%m/%d/%Y"), "%Y")
+phily2023 <- filter(phily, year == 2023)
+```
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Map of Philly Crime Locations in 2023"}
+
+philcolor <- rep("#0072B2", length(phily2023$fatal))
+philcolor[which(phily2023$fatal == "Fatal")] <- "#D55E00"
+
+labels <-  paste("Street Name: ",phily2023$street_name, 
+             "<br>Block Number: ", phily2023$block_number,
+             "<br>Neighborhood: ", phily2023$neighborhood,
+             "<br>Zipcode: ", phily2023$zip_code)%>% 
+                      lapply(htmltools::HTML)
+
+title <- tags$div( HTML('<font color = "purple" size =5><b>2023 Philly Crime Locations</b></font>'))
+
+ Annotat <- tags$div(HTML('<center><font color = "blue" size =3>The circle sizes are proportional to the ages</font>'))
+
+
+leaflet(phily2023) %>%
+  addTiles() %>% 
+  setView(lng = mean(phily2023$lng), lat=mean(phily2023$lat), zoom = 15) %>%
+  addCircleMarkers(
+            ~lng, 
+            ~lat,
+            color = philcolor,
+            fillColor = ifelse(phily2023$fatal == "Nonfatal", "#ffff66", "#ff99ff"),
+            radius = ~(phily2023$age/10)*2,
+            opacity = 1,
+           # stroke = FALSE, 
+           fillOpacity = 0.25,
+            label = ~labels ) %>%
+  
+  addLegend(position = "bottomright", 
+            colors = c("#0072B2", "#D55E00"),
+            labels= c("Nonfatal", "Fatal"),
+            title= "Crime Type",
+            opacity = 0.5)%>%
+ addControl(title, position = "topright", className = "map-title")%>%
+  addControl(Annotat, position = "bottomleft")%>%
+
+addLegendSize(position = 'bottomright', 
+                  values = (phily2023$age/10)*2,
+                   color = 'gray',
+               fillColor = 'gray',
+                 opacity = .5,
+                   title = 'Age',
+                   shape = 'circle',
+             orientation = 'vertical',
+                  breaks = 4)
+
+```
+
+## Map Interpretation
+The map above shows various crime locations in Philadelphia with orange circles representing fatal crimes and blue circles representing nonfatal crimes. From the plot, it is clear that in 2023, there were more nonfatal cases than fatal ones. The circle sizes are proportional to the ages on the dataset. Most of the fatal crimes are associated with younger ages. Majority of crime cases are seen in North Philadelphia.
+
+
+
+
+
+
+
+
+
+
