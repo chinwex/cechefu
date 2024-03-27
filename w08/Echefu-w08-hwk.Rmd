@@ -1,0 +1,802 @@
+---
+title: "Visualizing Geospatial Information - A Case Study"
+author: "Echefu Chinwendu"
+date: "2024-03-27"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    fig_width: 4
+    fig_caption: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+    fig_height: 4
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+    fig_width: 3
+    fig_height: 3
+  word_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    keep_md: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{=html}
+<style type="text/css">
+
+/* Table of content - navigation */
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+
+/* Title fonts */
+h1.title {
+  font-size: 24px;
+  color: darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.author { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: navy;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkblue;
+  text-align: center;
+}
+
+/* Section headers */
+h1 {
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h4 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Decoration of hyperlinks  */
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: purple;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+</style>
+```
+
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")             # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("jpeg")) {
+    install.packages("jpeg")              
+    library("jpeg")
+}
+if (!require("VGAM")) {
+    install.packages("VGAM")              
+    library("VGAM")
+}
+if (!require("MASS")) {
+    install.packages("MASS")              
+    library("MASS")
+}
+if (!require("nnet")) {
+    install.packages("nnet")              
+    library("nnet")
+}
+if (!require("cluster")) {
+    install.packages("cluster")              
+    library("cluster")
+}
+if (!require("stringr")) {
+   install.packages("stringr", dependencies = TRUE)
+   library(stringr)
+}
+
+if (!require("tm")) {
+   install.packages("tm", dependencies = TRUE)
+   library(tm)
+}
+
+if (!require("wordcloud")) {
+   install.packages("wordcloud", dependencies = TRUE)
+   library(wordcloud)
+}
+
+if (!require("RCurl")) {
+   install.packages("RCurl", dependencies = TRUE)
+   library(RCurl)
+}
+
+if (!require("XML")) {
+   install.packages("XML", dependencies = TRUE)
+   library(XML)
+}
+if (!require("SnowballC")) {
+   install.packages("SnowballC", dependencies = TRUE)
+   library(SnowballC)
+}
+if (!require("RColorBrewer")) {
+   install.packages("RColorBrewer", dependencies = TRUE)
+   library(RColorBrewer)
+}
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("graphics")) {
+    install.packages("graphics")              
+    library("graphics")
+}
+if (!require("ggridges")) {
+    install.packages("ggridges")              
+    library("ggridges")
+}
+if (!require("plyr")) {
+    install.packages("plyr")              
+    library("plyr")
+}
+if (!require("ggiraph")) {
+    install.packages("ggiraph")              
+    library("ggiraph")
+}
+if (!require("highcharter")) {
+    install.packages("highcharter")              
+    library("highcharter")
+}
+if (!require("forecast")) {
+    install.packages("forecast")              
+    library("forecast")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+if (!require("maps")) {
+    install.packages("maps")              
+    library("maps")
+}
+if (!require("htmltools")) {
+    install.packages("htmltools")              
+    library("htmltools")
+}
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")              
+    library("htmlwidgets")
+}
+if (!require("leaflegend")) {
+    install.packages("leaflegend")              
+    library("leaflegend")
+}
+if (!require("geojsonio")) {
+    install.packages("geojsonio")              
+    library("geojsonio")
+}
+if (!require("stringi")) {
+    install.packages("stringi")              
+    library("stringi")
+}
+if (!require("RColorBrewer")) {
+    install.packages("RColorBrewer")              
+    library("RColorBrewer")
+}
+if (!require("tigris")) {
+    install.packages("tigris")              
+    library("tigris")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("leafem")) {
+    install.packages("leafem")              
+    library("leafem")
+}
+if (!require("tmap")) {
+    install.packages("tmap")              
+    library("tmap")
+}
+if (!require("tmaptools")) {
+    install.packages("tmaptools")              
+    library("tmaptools")
+}
+if (!require("webshot2")) {
+    install.packages("webshot2")              
+    library("webshot2")
+}
+if (!require("sf")) {
+    install.packages("sf")              
+    library("sf")
+}
+if (!require("terra")) {
+    install.packages("terra")              
+    library("terra")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("mapview")) {
+    install.packages("mapview")              
+    library("mapview")
+}
+if (!require("spData")) {
+    install.packages("spData")              
+    library("spData")
+}
+if(!require("animation")){
+  install.packages("animation")
+  library(animation)
+}
+if(!require("ggmap")){
+  install.packages("ggmap")
+  library(ggmap)
+}
+if(!require("htmlTable")){
+  install.packages("htmlTable")
+  library(htmlTable)
+}
+if(!require("magrittr")){
+  install.packages("magrittr")
+  library(magrittr)
+}
+if(!require("webshot")){
+  install.packages("webshot")
+  library(webshot)
+}
+if(!require("viridis")){
+  install.packages("viridis")
+  library(viridis)
+}
+if (!require("leafem")) {
+    install.packages("leafem")
+library("leafem")
+}
+if (!require("spDataLarge")) {
+    install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
+library("spDataLarge")
+}
+if (!require("leaflet.extras")) {
+    install.packages("leaflet.extras")
+library("leaflet.extras")
+}
+if (!require("lattice")) {
+    install.packages("lattice")
+library("lattice")
+}
+if (!require("sp")) {
+    install.packages("sp")
+library("sp")
+}
+if (!require("pander")) {
+    install.packages("pander")              
+    library("pander")
+}
+if (!require("rlist")) {
+    install.packages("rlist")              
+    library("rlist")
+}
+if (!require("DT")) {
+    install.packages("DT")              
+    library("DT")
+}
+if (!require("crosstalk")) {
+    install.packages("crosstalk")              
+    library("crosstalk")
+}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+
+```{r, message=FALSE, results='hide'}
+# shooting_data <- na.omit(read.csv(file="https://github.com/chinwex/STA553/raw/main/w08/shootings.csv"))
+# phil  <- na.omit(st_read("https://github.com/chinwex/STA553/raw/main/w08/shootings.geojson"))
+shooting_data  <- na.omit(st_read("https://pengdsci.github.io/STA553VIZ/w08/PhillyShootings.geojson"))
+phillyNeighbor  <- st_read("https://pengdsci.github.io/STA553VIZ/w08/Neighborhoods_Philadelphia.geojson")
+philly  <- st_read("https://pengdsci.github.io/STA553VIZ/w08/PhillyNeighborhood-blocks.geojson")
+```
+
+# Introduction
+This dataset is a combination of fields from Officer Involved Shootings (OIS) data as well as fields from criminal shooting victim data from the Philadelphia Police Department. The shooting victim information is entered manually to the source database by examining investigative reports from Detectives.
+
+There are 15277 observations and 22 variables. Some of the variables and their descriptions include:
+
+- AGE - The age of the individual who was shot.
+- SEX - The sex of the individual who was shot.
+- RACE - The race of the individual who was shot.
+- CODE - The Crime Classification Code based off of the FBI's Crime Reporting (UCR) system.
+0000: Additional Victim;
+0100 – 0119: Homicide;
+0200 – 0299: Rape;
+0300 – 0399: Robbery;
+0400 – 0499: Aggravated Assault;
+3000 – 3900: Hospital Cases;
+- DATE - The date on which the shooting took place
+- DC_KEY - The unique incident identifier.
+- DIST - The district in which the shooting took place.
+- FATAL - Whether the individual died as a result of the shooting. 0=No and 1=Yes. The “FATAL” column is from the criminal shooting victim data and only indicates if someone died from a criminal shooting.
+- INSIDE - Whether the shooting incident took place inside a building/home, where 0=No, not inside and 1=Yes, inside.
+- LATINO - Whether or not the individual who was shot was of Latino ethnicity.
+- LOCATION - The location, generalized to the block level, of the shooting.
+- OFFENDER_DECEASED - Whether the offender died in an officer-involved shooting incident (N=No and Y=Yes).
+
+Shown below are the first 6 observations from the dataset:
+
+```{r}
+kable(head(shooting_data))
+```
+
+# Objectives of the Interactive Plot
+The shooting data set is neither a population nor a random sample from a population in Philadelphia. It is a set of public records of shootings in the neighborhoods of Philadelphia for the past 10 years. This data contains some geographical information such as district information, block/location, longitude, latitude etc. The main objectives are:
+
+- Shooting trend by year
+- Age density distribution
+- Bubble plot on the map
+- Table of total shootings categorized under Race, Sex and Age from 2015 t0 2024
+- Bar plot of shooting counts by Race
+- Map showing shooting counts for each district
+
+## Total Shootings for Districts
+
+Shooting data was aggregated by district to include fatal, nonfatal and total shootings for all districts. This information was illustrated on a map and shown below. The circle size is proportional to the number of shootings in a district. District 25 had the largest fatal and nonfatal shootings.
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Map Showing Total Shootings in Philadelphia Districts"}
+shooting_data$lng = shooting_data$point_x
+shooting_data$lat = shooting_data$point_y
+
+dist.CrimeTable = table(shooting_data$fatal, shooting_data$dist)
+
+distLon = aggregate(shooting_data$lng, by=list(shooting_data$dist), FUN=mean)
+distLat = aggregate(shooting_data$lat, by=list(shooting_data$dist), FUN=mean)
+distLonLat = merge(distLon, distLat, by = "Group.1")
+names(distLonLat) = c("district", "lng", "lat")
+
+
+distCrime = data.frame(district=as.numeric(names(table(shooting_data$dist))), 
+                      fatal = table(shooting_data$fatal, shooting_data$dist)[2,],
+                      nonfatal = table(shooting_data$fatal, shooting_data$dist)[1,],
+                      total.crime = table(shooting_data$dist) 
+                      )
+distCrime = distCrime[, c("district", "fatal", "nonfatal", "total.crime.Freq")]
+colnames(distCrime) = c("district", "fatal", "nonfatal", "total.crime")
+distCrime = merge(distLonLat, distCrime, by = "district")
+
+title2 <- tags$div(HTML('<font color = "darkred" size =5><b>Shootings in Philadelphia Districts</b></font>'))
+
+pal0 <- colorNumeric(palette = viridis(256, option = "B"), domain = range(distCrime$total.crime))
+distfig <- leaflet() %>%
+  setView(lng=-75.1527, lat=39.9707, zoom = 11) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>% 
+  ## plot the neighborhood boundary of Philly
+  addPolygons(data = phillyNeighbor,
+              color = 'lightgreen',
+              weight = 1)  %>%
+   addControl(title2, position = "topright", className="map-title")%>%
+  ##
+  addCircleMarkers(data = distCrime,
+                   radius = ~((total.crime)^(1/3)),
+                   color = ~pal0(total.crime),
+                   stroke = FALSE, 
+                   fillOpacity = 0.5,
+                   popup = ~paste('District:',district, 
+                      '<br>Total Crime:', total.crime, 
+                      '<br>Fatal Crime:', fatal,
+                      '<br>Nonfatal Crime:', nonfatal))
+distfig
+```
+
+
+```{r}
+plot.theme <- function() {
+  theme(
+    plot.title = element_text(face = "bold", 
+                              size = 12,
+                              family = "sans", 
+                              color = "#009E73",
+                              hjust = 0.5),
+    # add border 1)
+    panel.border = element_rect(colour = "#009E73", 
+                                fill = NA, 
+                                linetype = 2),
+    # color background 2)
+   # panel.background = element_rect(fill = "#F0E442"),
+    # modify grid 3)
+    panel.grid.major.x = element_line(colour = "#56B4E9", 
+                                      linetype = 3, 
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y =  element_line(colour = "#56B4E9", 
+                                       linetype = 3, 
+                                       size = 0.5),
+    panel.grid.minor.y = element_blank(),
+   
+    axis.text = element_text(colour = "#56B4E9", 
+                             face = "italic", 
+                             family = "Times New Roman"),
+    axis.title = element_text(colour = "#0072B2", 
+                              family = "Times New Roman"),
+    axis.ticks = element_line(colour = "#56B4E9"))
+}
+```
+
+
+## Shooting Trend by Year
+The plot below shows the shooting trend from 2015 to 2024. There was a sharp increase in the number of shootings from 2019 to 2020. This increase was maintained all through till 2022 and then was followed by a sharp decline in 2023. The increase seen from 2020 to 2022 can be related to the coronavirus period.
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Trend Plot of Shooting Crimes by Year", warning=FALSE}
+# trend
+
+yearCrime = data.frame(year=as.numeric(names(table(shooting_data$year))), 
+                      fatal = table(shooting_data$fatal, shooting_data$year))
+
+yearCrime = yearCrime[,-1]
+colnames(yearCrime) = c("fatal", "year", "total")
+
+A1 <- ggplot(data = yearCrime, aes(x = year, y = total, group = fatal, col = fatal)) +
+  geom_line() +
+  geom_point() +
+  geom_text(aes(label = total), size = 3) +
+  scale_color_manual(values=c("#D55E00", "#0072B2"), labels=c("Nonfatal", "Fatal"))+
+  plot.theme()+
+  labs(title = "Shooting Counts by Year",
+       x = "Year",
+       y = "Shooting Counts")
+A1
+
+```
+
+## Age Distribution
+The density plot below shows the distribution of the ages of individuals who were shot. The most common age for shooting victims was 28. 
+
+```{r fig.width=7, fig.height=5, fig.cap = "Age Distribution Density Plot", warning=FALSE}
+## 1. age distribution
+# Basic density plot in ggplot2
+shooting_data$age = as.numeric(shooting_data$age)
+fatalAge = ggplot(data = shooting_data, aes(x = age, fill = as.factor(fatal)) )+
+           geom_density(alpha = 0.6)  +
+          scale_fill_manual(values = c("#CC79A7", "#72D8FF"), labels=c("Nonfatal", "Fatal"))+
+  labs(fill = "Fatal",
+       title = "Distribution of Age") +
+  plot.theme()
+fatalAge
+```
+## Race Distribution
+A bar plot was used to illustrate the total shootings by race. Four different racial groups were represented in the dataset. They are Asian, Black, Unknown and White. The group with the highest number of shooting victims were Blacks with over 12000 records in 10 years.
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Bar Plot Showing Shooting Distribution by Race", warning=FALSE}
+
+
+A2 <- ggplot(data = shooting_data, aes(x = race)) +
+  geom_bar(color = "#56B4E9", fill = "yellow")+
+  labs(x = "Race",
+       y = "Total Shootings",
+       title = "Plot of Total Shootings By Race") + 
+  scale_x_discrete(labels = c("A" = "Asian", "B" = "Black", "U" = "Unknown", "W" = "White")) +
+  plot.theme()
+A2
+```
+
+## Summary Table
+A table summarizing total shootings by sex, race, age is shown below. The average age of shooting victims was 28 in the earlier years and then increased to 31 later. Black males are more likely to be victims of shooting crimes than other groups.
+
+```{r}
+dt = data.frame(year=as.numeric(names(table(shooting_data$year))), 
+                      fatal = table(shooting_data$fatal, shooting_data$year)[2,],
+                      nonfatal = table(shooting_data$fatal, shooting_data$year)[1,],
+                      total.crime = table(shooting_data$year),
+                 Black = table(shooting_data$race, shooting_data$year)[2,],
+                Males = table(shooting_data$sex, shooting_data$year)[2,],
+                Females = table(shooting_data$sex, shooting_data$year)[1,],
+                age = signif(tapply(shooting_data$age, shooting_data$year, mean), digits = 2)
+                      )
+dt = dt[,-c(1,4,5)]
+colnames(dt) = c("Fatal", "Nonfatal", "Black", "Males", "Females", "Age")
+A3 <- DT::datatable(dt, fillContainer = FALSE, options = list(pageLength = 5))
+A3
+
+```
+
+## Animated Plot of Shootings By Year
+
+```{r fig.width=7, fig.height=5, fig.cap = "Animated plot of Philadelphia Shootings By Year"}
+which_state <- "pennsylvania"
+county_info <- map_data("county", region=which_state)
+philly_info <- county_info[county_info$subregion == "philadelphia",]
+
+
+base_map <- ggplot(data = philly_info, mapping = aes(x = long, y = lat, group = group)) +
+ geom_polygon(color = "#009E73", fill = "lightyellow") +
+  coord_quickmap() +
+  theme_void() 
+
+map_with_data <- base_map +
+  geom_point(data = shooting_data, aes(x = lng, y = lat, color = factor(fatal), fill = factor(fatal), group=year), size = 2, alpha = 0.5)  +
+  scale_shape_manual(values = c(21, 24)) +
+scale_color_manual(values = c("#0072B2", "#D55E00"))
+
+map_with_animation <- map_with_data +
+  transition_time(year) +
+  ggtitle('Year: {frame_time}') +
+   shadow_mark()
+
+anim_save("ShootingsByYear.gif", map_with_animation)
+map_with_animation
+
+```
+
+
+
+# Interactive Map of Philadelphia Shootings
+
+A map visualizing all the relevant information and key points demonstrated above is shown below. 
+
+```{r fig.width=7, fig.height=5, fig.cap = "A Map of Philadelphia Shootings"}
+
+gif = st_as_sf(data.frame(x = -75.4077, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+tnd = st_as_sf(data.frame(x = -75.3877, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+ageDist = st_as_sf(data.frame(x = -75.3677, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+distloc = st_as_sf(data.frame(x = -75.3477, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+tbl = st_as_sf(data.frame(x = -75.3277, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+bpl = st_as_sf(data.frame(x = -75.3077, y = 39.9168),
+                coords = c("x", "y"),
+                crs = 4326)
+
+title1 <- tags$div(HTML('<font color = "darkred" size =5><b>Shootings in Philadelphia</b></font>'))
+
+fl = tempfile(fileext = ".html")
+saveWidget(distfig, file = fl)
+
+
+philcolor <- rep("#0072B2", length(shooting_data$fatal))
+philcolor[which(shooting_data$fatal == 1)] <- "#D55E00"
+
+shootingbyyear <- "https://github.com/chinwex/STA553/raw/main/w08/ShootingsByYear.gif"
+
+labels <-  paste("Location: ",shooting_data$location, 
+             "<br>Wound: ", shooting_data$wound,
+              "<br>Sex: ", shooting_data$sex,
+             "<br>Year: ", shooting_data$year,
+             "<br>Age: ", shooting_data$age)%>% 
+                      lapply(htmltools::HTML)
+
+
+leaflet() %>%
+  setView(lng=-75.15092, lat=40.00995, zoom = 11) %>%
+  #addProviderTiles(providers$Esri.WorldGrayCanvas, group = "Grey")%>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group="Dark") %>%
+  addProviderTiles(providers$CartoDB.DarkMatterNoLabels, group="DarkLabel") %>%  
+ addProviderTiles(providers$Esri.NatGeoWorldMap, group="Esri") %>%
+  
+  addControl(title1, position = "topright", className="map-title") %>%
+  ## mini reference map
+  addMiniMap() %>%
+  ## neighborhood boundary
+  addPolygons(data = phillyNeighbor,
+              color = 'lightgreen',
+              weight = 1)  %>%
+  ## plot information on the map
+  addCircleMarkers(data = shooting_data,
+                     ~lng, 
+                     ~lat,
+            color = philcolor,
+            fillColor = ifelse(shooting_data$fatal == 1, "#ffff66", "#ff99ff"),
+            radius = 10,
+            opacity = 1,
+           # stroke = FALSE, 
+           fillOpacity = 0.25,
+            label = ~labels,
+            clusterOptions = markerClusterOptions(maxClusterRadius = 40)) %>%
+  
+  # Trend of crimes over the years
+  addCircleMarkers(data = tnd, 
+                   color = "red",
+                   weight = 2,
+                   label = "Trend",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "tnd") %>%
+  addPopupGraphs(list(A1), 
+                  width = 450,
+                  height = 300,
+                  tooltip = FALSE,
+                  group = "tnd") %>%
+ # age distribution within the two types of crimes
+ addCircleMarkers(data = ageDist, 
+                   color = "#0072B2",
+                   weight = 2,
+                   label = "Age Distribution",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "ageDist") %>%
+  addPopupGraphs(list(fatalAge), 
+                  width = 450,
+                  height = 300,
+                  tooltip = FALSE,
+                  group = "ageDist") %>%
+  # shooting counts by district: bubble plot
+  addCircleMarkers(data = distloc, 
+                   color = "purple",
+                   weight = 2,
+                   label = "Crimes by District",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "distloc") %>%
+  leafpop:::addPopupIframes(
+                  source = fl,
+                   width = 450,
+                  height = 300,
+                   group = "distloc") %>%
+  # Animated shooting counts by years
+   addCircleMarkers(data = gif, 
+                   color = "#CC79A7",
+                   weight = 2,
+                   label = "Shootings by year",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "gif") %>%
+  addPopupImages(shootingbyyear, 
+                  width = 450,
+                  height = 300,
+                  tooltip = FALSE,
+                  group = "gif") %>% 
+  addCircleMarkers(data = tbl, 
+                   color = "gold",
+                   weight = 2,
+                   label = "Summary Table",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "tbl",
+                   popup = htmlTable(dt)) %>%
+  # barplot of crime by race
+  addCircleMarkers(data = bpl, 
+                   color = "green",
+                   weight = 2,
+                   label = "Crime by Race",
+                   stroke = FALSE, 
+                   fillOpacity = 0.95,
+                   group = "bpl") %>%
+  addPopupGraphs(list(A2), 
+                  width = 450,
+                  height = 300,
+                  tooltip = FALSE,
+                  group = "bpl") %>%
+  addLayersControl(baseGroups = c('Dark', 'DarkLabel', 'Esri'),
+                   overlayGroups = c("Shooting Data"),
+                   options = layersControlOptions(collapsed = TRUE)) %>%
+  ##
+  browsable()
+
+```
+
+
+
+
