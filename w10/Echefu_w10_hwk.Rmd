@@ -1,0 +1,242 @@
+---
+title: "Analytic Dasboards with Tableau"
+author: "Echefu Chinwendu"
+date: "4/9/2024"
+output: 
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    fig_width: 4
+    fig_caption: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: readable
+---
+      
+<style type="text/css">
+div#TOC li {
+    list-style:none;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+h1.title {
+  font-size: 24px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { 
+  /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { 
+  /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h1 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+h2 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+h3 { 
+    /* Header 3 - and the author and data headers use this too  */
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    font-face: bold;
+    text-align: left;
+}
+h4 { 
+    /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+   /* center maps using chunk option: fig.align='center' */
+.html-widget {
+    margin: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+
+# Introduction
+This data set contains information on employee attrition. It has 1470 rows and 35 columns. The variables include age, gender, job satisfaction, environment satisfaction, education field, job role, income, overtime, percentage salary hike, tenure, training time, years in current role, marital status, and more. With these variables, this data set can be used to predict turnover, and find differences between the group that stayed or left.
+
+```{r}
+dat <- read.csv(file="https://github.com/chinwex/STA553/raw/main/w10/EmployeeAttritionData.csv")
+```
+
+## Objectives of this Analysis
+
+The following are the questions and objectives that describe and explain the main purpose of this analysis.
+
+1. To predict which employees are more likely to leave.
+2. What is the percentage of employees that have left the company?
+3. Are there any notable patterns in terms of employee attrition based on gender, age, department, job role and job satisfaction?
+
+## Data Management
+A binary variable `Attrition count` was added to the dataset which takes the value of 0 and 1. The value, 0, represents people who are still with the company whereas 1 represents people who left.
+Another variable, `Age category` was created which combined the ages into 5 different groups: less than 25, 25 to 34, 35 to 44, 45 to 55 and 55 and above.
+
+```{r}
+dat$Attritioncount <- ifelse(dat$Attrition == "Yes", 1, 0)
+dat$Agecat <- ifelse(dat$Age < 25, "Less than 25",
+                     ifelse(dat$Age >= 25 & dat$Age < 35, "25-34",
+                            ifelse(dat$Age >= 35 & dat$Age < 45, "35-44",
+                                   ifelse(dat$Age >= 45 & dat$Age < 55, "45-54", "55 and Above"))))
+
+```
+
+```{r}
+write.csv(dat, file = "C:\\Users\\echef\\Documents\\STA553\\week 10\\Attrition_data.csv")
+```
+
+The final dataset can be found here: https://github.com/chinwex/STA553/raw/main/w10/Attrition_data.csv 
+
+# Employee Attrition Dashboard
+
+This dashboard was designed to identify the patterns of attrition in the company based on several factors such as gender, age, job role, job satisfaction, monthly income, department, and years at the company.
+
+\
+
+<table border = 0 bordercolor="darkgreen" bgcolor='#f6f6f6'  width=100%  align = center>
+<tr>
+<td>
+
+<div class='tableauPlaceholder' id='viz1712666066997' style='position: relative'>
+<noscript><a href='#'>
+<img alt=' ' 
+src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Em&#47;EmployeeAttritiondata_17126420357660&#47;Dashboard&#47;1_rss.png' style='border: none' />
+</a>
+</noscript>
+<object class='tableauViz'  style='display:none;'>
+<param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+<param name='embed_code_version' value='3' /> <param name='site_root' value='' />
+<param name='name' value='EmployeeAttritiondata_17126420357660&#47;Dashboard' />
+<param name='tabs' value='yes' />
+<param name='toolbar' value='yes' />
+<param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Em&#47;EmployeeAttritiondata_17126420357660&#47;Dashboard&#47;1.png' /> 
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' />
+<param name='language' value='en-GB' />
+<param name='filter' value='publish=yes' />
+</object></div>                
+<script type='text/javascript'>                    
+var divElement = document.getElementById('viz1712666066997');                    
+var vizElement = divElement.getElementsByTagName('object')[0];                    
+if ( divElement.offsetWidth > 800 ) { vizElement.style.minWidth='900px';
+vizElement.style.maxWidth='100%';
+vizElement.style.minHeight='930px';
+vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.minWidth='900px';
+vizElement.style.maxWidth='100%';
+vizElement.style.minHeight='930px';
+vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.minWidth='900px';
+vizElement.style.maxWidth='100%';vizElement.style.minHeight='2100px';
+vizElement.style.maxHeight=(divElement.offsetWidth*1.77)+'px';}                     
+var scriptElement = document.createElement('script');                    
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+</script>
+
+</td>
+</tr>
+</table>
+
+\
+
+## Attrition Summary
+
+- The total number of employees in the company = 1470 
+- Average Age of Employees = 37
+- Average monthly income = 6503
+- Average hourly rate = 66
+- The number of employees recorded to have left = 237
+- Percentage Attrition = 16.1%
+
+## Attrition by Department and Job Role
+The bulk of employees that leave the organisation work in research and development. Positions mainly affected are the Laboratory Technician and Research Scientist roles. Employees in the department of Human Resources have the lowest attrition rates, which may be because they are also the smallest department in the organisation. Overall, managers have the company's lowest attrition rates.
+
+## Attrition by Age
+Employees whose ages lie between 25 and 34 are most likely to leave. That may be due to the fact that they are the group with the highest number of workers whereas those that are 55 or older are most likely to stay. 
+
+## Attrition by Age and Gender
+In all age groups, males have higher attrition counts than females. Males who are between the ages of 25 and 34 have the highest attrition counts while females who are 55 or older have the lowest attrition counts.
+
+## Monthly Income by Years at Company
+There is a linear association between monthly income and years at the company. The higher the number of years spent by a worker in the company, the more the monthly income. For example, employees who have spent 37 years in the company, have a median monthly income of 13,872 while those who have spent just 1 year, have a median monthly income of 3,346. Also, attrition rates are higher among people with lower working years at the company.
+
+## Attrition by Job Satisfaction
+There are 4 levels of job satisfaction - low, medium, high and very high. From the dashboard, this was assessed with a line plot showing the total attrition at each job satisfaction level for every department. Irrespective of the job satisfaction level, employees from Human resources still maintained the lowest attrition counts. Overall, workers with high job satisfaction have the highest attrition counts.
+
+# Employee Attrition StoryPoint
+
+\
+
+<table border = 0 bordercolor="darkgreen" bgcolor='#f6f6f6'  width=100%  align = center>
+<tr>
+<td>
+
+<div class='tableauPlaceholder' id='viz1712666456462' style='position: relative'>
+<noscript>
+<a href='#'><img alt=' ' 
+src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Em&#47;EmployeeAttritiondata_17126420357660&#47;Storypoint&#47;1_rss.png' style='border: none' /></a>
+</noscript><object class='tableauViz'  style='display:none;'>
+<param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+<param name='embed_code_version' value='3' /> 
+<param name='site_root' value='' />
+<param name='name' value='EmployeeAttritiondata_17126420357660&#47;Storypoint' />
+<param name='tabs' value='yes' />
+<param name='toolbar' value='yes' />
+<param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Em&#47;EmployeeAttritiondata_17126420357660&#47;Storypoint&#47;1.png' /> 
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' /><param name='language' value='en-GB' />
+<param name='filter' value='publish=yes' />
+</object></div>                
+<script type='text/javascript'>                    
+var divElement = document.getElementById('viz1712666456462');                    
+var vizElement = divElement.getElementsByTagName('object')[0];                    
+vizElement.style.width='900px';vizElement.style.height='930px';                    
+var scriptElement = document.createElement('script');                    
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    
+vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+</script>
+
+</td>
+</tr>
+</table>
+
+\
